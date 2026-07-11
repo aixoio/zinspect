@@ -1,6 +1,6 @@
 use std::fs::File;
 
-use crossterm::event::{self, KeyCode, KeyEventKind, KeyModifiers};
+use crossterm::event::{self, Event, KeyCode, KeyEventKind, KeyModifiers};
 use ratatui::{
     DefaultTerminal, Frame,
     layout::{Constraint, Direction, Layout},
@@ -23,7 +23,7 @@ pub enum AppState {
 }
 
 impl AppState {
-    pub fn cycle(self) -> Self {
+    pub fn cycle(&self) -> Self {
         match self {
             Self::FilesPage => Self::InfoPage,
             Self::InfoPage => Self::FilesPage,
@@ -54,11 +54,15 @@ impl App {
 
     fn handle_events(&mut self) -> anyhow::Result<()> {
         match event::read()? {
-            event::Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
+            Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
                 if key_event.code == KeyCode::Char('c')
                     && key_event.modifiers.contains(KeyModifiers::CONTROL)
                 {
                     self.exit();
+                }
+
+                if key_event.code == KeyCode::Tab {
+                    self.state = self.state.cycle();
                 }
             }
             _ => {}
