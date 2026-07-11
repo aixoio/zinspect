@@ -6,10 +6,7 @@ use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Style},
     text::Span,
-    widgets::{
-        Block, BorderType, Borders, Padding, Paragraph, Row, StatefulWidget, Table, TableState,
-        Widget,
-    },
+    widgets::{Block, Padding, Paragraph, Row, StatefulWidget, Table, TableState, Widget},
 };
 use ratatui_textarea::{Input, Key, TextArea};
 use zip::ZipArchive;
