@@ -33,7 +33,7 @@ impl<'a> Widget for StatusBarWidget<'a> {
                     Span::styled("Files", Style::default()),
                     Span::raw("     "),
                     Span::styled(
-                        "tab: swtich modes, ctrl+c: quit, enter: info",
+                        "tab: switch modes, ctrl+c: quit, enter: info",
                         Style::default().gray().italic(),
                     ),
                 ]
@@ -45,7 +45,7 @@ impl<'a> Widget for StatusBarWidget<'a> {
                     Span::styled("Files", Style::default().blue()),
                     Span::raw("     "),
                     Span::styled(
-                        "tab: swtich modes, ctrl+c: quit, enter: info",
+                        "tab: switch modes, ctrl+c: quit, enter: info",
                         Style::default().gray().italic(),
                     ),
                 ]
