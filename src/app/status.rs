@@ -3,7 +3,7 @@ use ratatui::{
     layout::Rect,
     style::Style,
     text::{Line, Span},
-    widgets::{Block, BorderType, Paragraph, Widget},
+    widgets::{Block, BorderType, Padding, Paragraph, Widget},
 };
 
 use crate::app::AppState;
@@ -21,6 +21,7 @@ impl<'a> StatusBarWidget<'a> {
 impl<'a> Widget for StatusBarWidget<'a> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let block = Block::bordered()
+            .padding(Padding::horizontal(4))
             .border_type(BorderType::Rounded)
             .border_style(Style::default().blue());
         let text = Line::from(match self.status {
