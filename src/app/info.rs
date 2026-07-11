@@ -5,11 +5,12 @@ use zip::ZipArchive;
 
 pub struct InfoWidget<'a> {
     archive: &'a ZipArchive<File>,
+    filename: &'a str,
 }
 
 impl<'a> InfoWidget<'a> {
-    pub fn new(archive: &'a ZipArchive<File>) -> Self {
-        Self { archive }
+    pub fn new(archive: &'a ZipArchive<File>, filename: &'a str) -> Self {
+        Self { archive, filename }
     }
 }
 

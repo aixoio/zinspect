@@ -90,7 +90,7 @@ impl App {
         frame.render_widget(statusbar, master[0]);
 
         if let AppState::InfoPage = &self.state {
-            let info = InfoWidget::new(&self.archive);
+            let info = InfoWidget::new(&self.archive, &self.filename);
             frame.render_widget(info, master[1]);
         }
     }
