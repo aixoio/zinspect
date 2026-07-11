@@ -7,6 +7,10 @@ use ratatui::{
 };
 use zip::ZipArchive;
 
+use crate::getter;
+
+mod status;
+
 pub struct App {
     state: AppState,
     archive: ZipArchive<File>,
@@ -25,14 +29,6 @@ impl AppState {
             Self::InfoPage => Self::FilesPage,
         }
     }
-}
-
-macro_rules! getter {
-    ($name:ident, $type:ty) => {
-        pub fn $name(&self) -> &$type {
-            &self.$name
-        }
-    };
 }
 
 impl App {
