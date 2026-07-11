@@ -1,7 +1,7 @@
 use std::{fs::File, process::ExitCode};
 
 use clap::Parser;
-use zinspect::{app::App, cli::Cli, match_error};
+use zinspect::{app::App, cli::Cli, handle_error, match_error};
 use zip::ZipArchive;
 
 fn main() -> ExitCode {
@@ -10,10 +10,13 @@ fn main() -> ExitCode {
     let file = match_error!(File::open(cli.path()));
     let zip = match_error!(ZipArchive::new(file));
 
-    let app = App::new(zip);
-
+    let mut app = App::new(zip);
     let mut terminal = ratatui::init();
+
+    let result = app.run(&mut terminal);
+
     ratatui::restore();
 
+    handle_error!(result);
     ExitCode::SUCCESS
 }
