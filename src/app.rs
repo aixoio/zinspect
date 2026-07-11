@@ -7,8 +7,12 @@ use ratatui::{
 };
 use zip::ZipArchive;
 
-use crate::{app::status::StatusBarWidget, getter};
+use crate::{
+    app::{info::InfoWidget, status::StatusBarWidget},
+    getter,
+};
 
+mod info;
 mod status;
 
 pub struct App {
@@ -81,7 +85,11 @@ impl App {
             .split(frame.area());
 
         let statusbar = StatusBarWidget::new(&self.state);
-
         frame.render_widget(statusbar, master[0]);
+
+        if let AppState::InfoPage = &self.state {
+            let info = InfoWidget::new(&self.archive);
+            frame.render_widget(info, master[1]);
+        }
     }
 }
