@@ -1,5 +1,6 @@
 use std::fs;
 
+use human_repr::HumanCount;
 use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Rect},
@@ -62,7 +63,7 @@ impl StatefulWidget for &FilesWidget {
     type State = FilesWidgetState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
-        let header = Row::new(["Filename", "%", "Size"])
+        let header = Row::new(["Filename", "Size", "%"])
             .style(Style::default().bold())
             .bottom_margin(1);
 
@@ -72,16 +73,16 @@ impl StatefulWidget for &FilesWidget {
             .map(|f| {
                 Row::new([
                     f.filename.to_string(),
-                    format!("{}", f.compressed_size / f.size),
-                    f.size.to_string(),
+                    f.size.human_count_bytes().to_string(),
+                    format!("{}", ((f.size - f.compressed_size) / f.size) * 100),
                 ])
             })
             .collect();
 
         let widths = [
-            Constraint::Percentage(60),
+            Constraint::Percentage(70),
             Constraint::Percentage(15),
-            Constraint::Percentage(15),
+            Constraint::Percentage(5),
         ];
 
         let table = Table::new(rows, widths)
