@@ -2,7 +2,6 @@ use std::fs;
 
 use human_repr::HumanCount;
 use ratatui::{
-    Frame,
     buffer::Buffer,
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Style},
