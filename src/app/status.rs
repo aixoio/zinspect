@@ -24,6 +24,7 @@ impl<'a> Widget for StatusBarWidget<'a> {
             .padding(Padding::horizontal(4))
             .border_type(BorderType::Rounded)
             .border_style(Style::default().blue());
+
         let text = Line::from(match self.status {
             AppState::InfoPage => {
                 vec![
