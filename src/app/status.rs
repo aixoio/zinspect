@@ -31,6 +31,11 @@ impl<'a> Widget for StatusBarWidget<'a> {
                     Span::styled("Mode: ", Style::default().bold()),
                     Span::styled("Info  ", Style::default().blue()),
                     Span::styled("Files", Style::default()),
+                    Span::raw("     "),
+                    Span::styled(
+                        "tab: swtich modes, ctrl+c: quit",
+                        Style::default().gray().italic(),
+                    ),
                 ]
             }
             AppState::FilesPage => {
@@ -38,6 +43,11 @@ impl<'a> Widget for StatusBarWidget<'a> {
                     Span::styled("Mode: ", Style::default().bold()),
                     Span::styled("Info  ", Style::default()),
                     Span::styled("Files", Style::default().blue()),
+                    Span::raw("     "),
+                    Span::styled(
+                        "tab: swtich modes, ctrl+c: quit",
+                        Style::default().gray().italic(),
+                    ),
                 ]
             }
         });
