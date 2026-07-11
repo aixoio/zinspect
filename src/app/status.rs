@@ -28,15 +28,15 @@ impl<'a> Widget for StatusBarWidget<'a> {
         let text = Line::from(match self.status {
             AppState::InfoPage => {
                 vec![
-                    Span::styled("Mode", Style::default().bold()),
-                    Span::styled("Info", Style::default().blue()),
+                    Span::styled("Mode: ", Style::default().bold()),
+                    Span::styled("Info  ", Style::default().blue()),
                     Span::styled("Files", Style::default()),
                 ]
             }
             AppState::FilesPage => {
                 vec![
-                    Span::styled("Mode", Style::default().bold()),
-                    Span::styled("Info", Style::default()),
+                    Span::styled("Mode: ", Style::default().bold()),
+                    Span::styled("Info  ", Style::default()),
                     Span::styled("Files", Style::default().blue()),
                 ]
             }
