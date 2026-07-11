@@ -34,8 +34,17 @@ impl<'a> Widget for InfoWidget<'a> {
             lines.push(Line::from(vec![
                 Span::styled("Decompressed size    ", Style::default().blue().bold()),
                 Span::raw(humanize_bytes_decimal!(size).to_string()),
+                Span::raw("  "),
+                Span::styled("(Bytes: ", Style::default().gray().italic()),
+                Span::styled(size.to_string(), Style::default().gray().italic()),
+                Span::styled(")", Style::default().gray().italic()),
             ]));
         }
+
+        lines.push(Line::from(vec![
+            Span::styled("Files    ", Style::default().blue().bold()),
+            Span::raw(self.archive.len().to_string()),
+        ]));
 
         let text = Text::from(lines);
 
