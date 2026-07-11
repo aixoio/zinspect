@@ -12,5 +12,8 @@ fn main() -> ExitCode {
 
     let app = App::new(zip);
 
+    let mut terminal = ratatui::init();
+    ratatui::restore();
+
     ExitCode::SUCCESS
 }
