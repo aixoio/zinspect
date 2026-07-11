@@ -1,7 +1,10 @@
 use std::fs::File;
 
 use crossterm::event::{self, KeyCode, KeyEventKind, KeyModifiers};
-use ratatui::{DefaultTerminal, Frame};
+use ratatui::{
+    DefaultTerminal, Frame,
+    layout::{Constraint, Direction, Layout},
+};
 use zip::ZipArchive;
 
 pub struct App {
@@ -71,5 +74,10 @@ impl App {
         self.running = false;
     }
 
-    fn draw(&self, frame: &mut Frame) {}
+    fn draw(&self, frame: &mut Frame) {
+        let master = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([Constraint::Max(3), Constraint::Min(6)])
+            .split(frame.area());
+    }
 }
