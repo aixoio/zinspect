@@ -1,5 +1,6 @@
 use std::fs;
 
+use fuzzy_matcher::{FuzzyMatcher, skim::SkimMatcherV2};
 use human_repr::HumanCount;
 use ratatui::{
     buffer::Buffer,
@@ -91,17 +92,42 @@ impl StatefulWidget for &FilesWidget {
         ])
         .areas(table_layout);
 
-        let rows: Vec<_> = self
+        let query = state.textarea.lines().join(" ");
+        let matcher = SkimMatcherV2::default();
+
+        let mut files: Vec<_> = self
             .files
             .iter()
-            .map(|f| {
-                Row::new([
-                    f.filename.to_string(),
-                    f.size.human_count_bytes().to_string(),
-                    format!("{}", ((f.size - f.compressed_size) / f.size) * 100),
-                ])
+            .filter_map(|file| {
+                if query.is_empty() {
+                    Some((file, 0))
+                } else {
+                    matcher
+                        .fuzzy_match(&file.filename, &query)
+                        .map(|score| (file, score))
+                }
             })
             .collect();
+
+        files.sort_by_key(|(_, score)| std::cmp::Reverse(*score));
+
+        if files.is_empty() {
+            state.table.select(None);
+        } else if state
+            .table
+            .selected()
+            .is_none_or(|index| index >= files.len())
+        {
+            state.table.select_first();
+        }
+
+        let rows = files.into_iter().map(|(file, _)| {
+            Row::new([
+                file.filename.to_string(),
+                file.size.human_count_bytes().to_string(),
+                file.compressed_size.human_count_bytes().to_string(),
+            ])
+        });
 
         let widths = [
             Constraint::Percentage(70),
