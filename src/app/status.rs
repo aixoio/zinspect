@@ -21,7 +21,7 @@ impl<'a> StatusBarWidget<'a> {
 impl<'a> Widget for StatusBarWidget<'a> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let block = Block::bordered()
-            .padding(Padding::horizontal(4))
+            .padding(Padding::horizontal(2))
             .border_type(BorderType::Rounded)
             .border_style(Style::default().blue());
 
