@@ -2,11 +2,13 @@ use std::fs;
 
 use human_repr::HumanCount;
 use ratatui::{
+    Frame,
     buffer::Buffer,
-    layout::{Constraint, Rect},
+    layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Style},
-    widgets::{Row, StatefulWidget, Table, TableState},
+    widgets::{Row, StatefulWidget, Table, TableState, Widget},
 };
+use ratatui_textarea::{Input, TextArea};
 use zip::ZipArchive;
 
 struct File {
@@ -21,6 +23,7 @@ pub struct FilesWidget {
 
 pub struct FilesWidgetState {
     table: TableState,
+    textarea: TextArea<'static>,
 }
 
 impl FilesWidgetState {
@@ -28,7 +31,9 @@ impl FilesWidgetState {
         let mut table = TableState::default();
         table.select_first();
 
-        FilesWidgetState { table }
+        let textarea = TextArea::default();
+
+        FilesWidgetState { table, textarea }
     }
 
     pub fn next(&mut self) {
@@ -37,6 +42,10 @@ impl FilesWidgetState {
 
     pub fn back(&mut self) {
         self.table.select_previous();
+    }
+
+    pub fn input(&mut self, input: impl Into<Input>) {
+        self.textarea.input(input);
     }
 }
 
@@ -63,6 +72,11 @@ impl StatefulWidget for &FilesWidget {
     type State = FilesWidgetState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
+        let [text_layout, table_layout] = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([Constraint::Max(3), Constraint::Min(3)])
+            .areas(area);
+
         let header = Row::new(["Filename", "Size", "%"])
             .style(Style::default().bold())
             .bottom_margin(1);
@@ -91,6 +105,7 @@ impl StatefulWidget for &FilesWidget {
             .style(Color::White)
             .row_highlight_style(Style::default().on_blue());
 
-        table.render(area, buf, &mut state.table);
+        Widget::render(&state.textarea, text_layout, buf);
+        StatefulWidget::render(table, table_layout, buf, &mut state.table);
     }
 }

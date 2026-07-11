@@ -83,6 +83,10 @@ impl App {
 
                     _ => {}
                 }
+
+                if let AppState::FilesPage = &self.state {
+                    self.files_widget_state.input(key_event);
+                }
             }
             _ => {}
         }
