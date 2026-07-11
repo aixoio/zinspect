@@ -5,9 +5,9 @@ use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Style},
-    widgets::{Row, StatefulWidget, Table, TableState, Widget},
+    widgets::{Block, Padding, Paragraph, Row, StatefulWidget, Table, TableState, Widget},
 };
-use ratatui_textarea::{Input, TextArea};
+use ratatui_textarea::{Input, Key, TextArea};
 use zip::ZipArchive;
 
 struct File {
@@ -47,7 +47,11 @@ impl FilesWidgetState {
     }
 
     pub fn input(&mut self, input: impl Into<Input>) {
-        self.textarea.input(input);
+        let input = input.into();
+
+        if !matches!(input.key, Key::Enter) {
+            self.textarea.input(input);
+        }
     }
 }
 
@@ -76,7 +80,7 @@ impl StatefulWidget for &FilesWidget {
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         let [text_layout, table_layout] = Layout::default()
             .direction(Direction::Vertical)
-            .constraints([Constraint::Max(3), Constraint::Min(3)])
+            .constraints([Constraint::Length(3), Constraint::Min(3)])
             .areas(area);
 
         let header = Row::new(["Filename", "Size", "%"])
@@ -107,7 +111,16 @@ impl StatefulWidget for &FilesWidget {
             .style(Color::White)
             .row_highlight_style(Style::default().on_blue());
 
-        Widget::render(&state.textarea, text_layout, buf);
+        let search_block = Block::default().padding(Padding::new(2, 2, 1, 1));
+
+        let search_inner = search_block.inner(text_layout);
+        search_block.render(text_layout, buf);
+
+        let [prefix_area, textarea_area] =
+            Layout::horizontal([Constraint::Length(2), Constraint::Min(1)]).areas(search_inner);
+
+        Paragraph::new("> ").render(prefix_area, buf);
+        Widget::render(&state.textarea, textarea_area, buf);
         StatefulWidget::render(table, table_layout, buf, &mut state.table);
     }
 }
