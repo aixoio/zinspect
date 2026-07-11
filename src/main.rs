@@ -1,7 +1,7 @@
 use std::{fs::File, process::ExitCode};
 
 use clap::Parser;
-use zinspect::{cli::Cli, match_error};
+use zinspect::{app::App, cli::Cli, match_error};
 use zip::ZipArchive;
 
 fn main() -> ExitCode {
@@ -10,9 +10,7 @@ fn main() -> ExitCode {
     let file = match_error!(File::open(cli.path()));
     let zip = match_error!(ZipArchive::new(file));
 
-    for file in zip.file_names() {
-        println!("zip: {}", file);
-    }
+    let app = App::new(zip);
 
     ExitCode::SUCCESS
 }
