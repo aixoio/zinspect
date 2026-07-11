@@ -24,10 +24,19 @@ impl<'a> Widget for InfoWidget<'a> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let block = Block::default().padding(Padding::new(4, 0, 1, 0));
 
-        let text = Text::from(vec![Line::from(vec![
+        let mut lines = vec![Line::from(vec![
             Span::styled("Filename    ", Style::default().blue().bold()),
             Span::raw(self.filename),
-        ])]);
+        ])];
+
+        if let Some(size) = self.archive.decompressed_size() {
+            lines.push(Line::from(vec![
+                Span::styled("Decompressed size    ", Style::default().blue().bold()),
+                Span::raw(size.to_string()),
+            ]));
+        }
+
+        let text = Text::from(lines);
 
         let text = Paragraph::new(text).block(block);
 
