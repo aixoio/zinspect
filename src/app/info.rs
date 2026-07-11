@@ -1,6 +1,6 @@
 use std::fs::File;
 
-use humanize_bytes::humanize_bytes_decimal;
+use human_repr::HumanCount;
 use ratatui::{
     buffer::Buffer,
     layout::Rect,
@@ -33,7 +33,7 @@ impl<'a> Widget for InfoWidget<'a> {
         if let Some(size) = self.archive.decompressed_size() {
             lines.push(Line::from(vec![
                 Span::styled("Decompressed size    ", Style::default().blue().bold()),
-                Span::raw(humanize_bytes_decimal!(size).to_string()),
+                Span::raw(size.human_count_bytes().to_string()),
                 Span::raw("  "),
                 Span::styled("(Bytes: ", Style::default().gray().italic()),
                 Span::styled(size.to_string(), Style::default().gray().italic()),
