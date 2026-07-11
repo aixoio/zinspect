@@ -5,6 +5,7 @@ use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Style},
+    text::Span,
     widgets::{
         Block, BorderType, Borders, Padding, Paragraph, Row, StatefulWidget, Table, TableState,
         Widget,
@@ -86,7 +87,12 @@ impl StatefulWidget for &FilesWidget {
             .constraints([Constraint::Length(3), Constraint::Min(3)])
             .areas(area);
 
-        let header = Row::new(["Filename", "Size", "%"]).style(Style::default().bold());
+        let [header_area, separator_area, rows_area] = Layout::vertical([
+            Constraint::Length(1),
+            Constraint::Length(1),
+            Constraint::Min(1),
+        ])
+        .areas(table_layout);
 
         let rows: Vec<_> = self
             .files
@@ -106,16 +112,14 @@ impl StatefulWidget for &FilesWidget {
             Constraint::Percentage(5),
         ];
 
+        let header_table = Table::new(Vec::<Row>::new(), widths)
+            .header(Row::new(["Filename", "Size", "%"]).style(Style::default().bold()))
+            .column_spacing(1);
+
         let table = Table::new(rows, widths)
-            .header(header)
             .column_spacing(1)
             .style(Color::White)
-            .row_highlight_style(Style::default().on_blue())
-            .block(
-                Block::default()
-                    .borders(Borders::TOP)
-                    .border_type(BorderType::Plain),
-            );
+            .row_highlight_style(Style::default().on_blue());
 
         let search_block = Block::default().padding(Padding::new(2, 2, 1, 1));
 
@@ -127,6 +131,15 @@ impl StatefulWidget for &FilesWidget {
 
         Paragraph::new("> ").render(prefix_area, buf);
         Widget::render(&state.textarea, textarea_area, buf);
-        StatefulWidget::render(table, table_layout, buf, &mut state.table);
+
+        Widget::render(header_table, header_area, buf);
+
+        Paragraph::new(Span::styled(
+            "─".repeat(separator_area.width as usize),
+            Style::default().blue(),
+        ))
+        .render(separator_area, buf);
+
+        StatefulWidget::render(table, rows_area, buf, &mut state.table);
     }
 }
