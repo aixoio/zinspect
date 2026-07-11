@@ -1,13 +1,12 @@
 use clap::Parser;
-use std::path::PathBuf;
+
+use crate::getter;
 
 #[derive(Parser)]
 pub struct Cli {
-    path: PathBuf,
+    path: String,
 }
 
 impl Cli {
-    pub fn path(&self) -> &PathBuf {
-        &self.path
-    }
+    getter!(path, String);
 }
