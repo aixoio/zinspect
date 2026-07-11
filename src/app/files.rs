@@ -5,7 +5,10 @@ use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Style},
-    widgets::{Block, Padding, Paragraph, Row, StatefulWidget, Table, TableState, Widget},
+    widgets::{
+        Block, BorderType, Borders, Padding, Paragraph, Row, StatefulWidget, Table, TableState,
+        Widget,
+    },
 };
 use ratatui_textarea::{Input, Key, TextArea};
 use zip::ZipArchive;
@@ -83,9 +86,7 @@ impl StatefulWidget for &FilesWidget {
             .constraints([Constraint::Length(3), Constraint::Min(3)])
             .areas(area);
 
-        let header = Row::new(["Filename", "Size", "%"])
-            .style(Style::default().bold())
-            .bottom_margin(1);
+        let header = Row::new(["Filename", "Size", "%"]).style(Style::default().bold());
 
         let rows: Vec<_> = self
             .files
@@ -109,7 +110,12 @@ impl StatefulWidget for &FilesWidget {
             .header(header)
             .column_spacing(1)
             .style(Color::White)
-            .row_highlight_style(Style::default().on_blue());
+            .row_highlight_style(Style::default().on_blue())
+            .block(
+                Block::default()
+                    .borders(Borders::TOP)
+                    .border_type(BorderType::Plain),
+            );
 
         let search_block = Block::default().padding(Padding::new(2, 2, 1, 1));
 
