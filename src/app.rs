@@ -8,10 +8,15 @@ use ratatui::{
 use zip::ZipArchive;
 
 use crate::{
-    app::{info::InfoWidget, status::StatusBarWidget},
+    app::{
+        files::{FilesWidget, FilesWidgetState},
+        info::InfoWidget,
+        status::StatusBarWidget,
+    },
     getter,
 };
 
+mod files;
 mod info;
 mod status;
 
@@ -20,6 +25,8 @@ pub struct App {
     archive: ZipArchive<File>,
     running: bool,
     filename: Box<str>,
+    files_widget: FilesWidget,
+    files_widget_state: FilesWidgetState,
 }
 
 pub enum AppState {
@@ -40,13 +47,17 @@ impl App {
     getter!(state, AppState);
     getter!(archive, ZipArchive<File>);
 
-    pub fn new(archive: ZipArchive<File>, filename: Box<str>) -> Self {
-        Self {
+    pub fn new(mut archive: ZipArchive<File>, filename: Box<str>) -> anyhow::Result<Self> {
+        let files_widget = FilesWidget::build(&mut archive)?;
+
+        Ok(Self {
             state: AppState::InfoPage,
             archive,
             running: true,
             filename,
-        }
+            files_widget,
+            files_widget_state: FilesWidgetState::new(),
+        })
     }
 
     pub fn run(&mut self, terminal: &mut DefaultTerminal) -> anyhow::Result<()> {
@@ -61,14 +72,16 @@ impl App {
     fn handle_events(&mut self) -> anyhow::Result<()> {
         match event::read()? {
             Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
-                if key_event.code == KeyCode::Char('c')
-                    && key_event.modifiers.contains(KeyModifiers::CONTROL)
-                {
-                    self.exit();
-                }
+                match key_event.code {
+                    KeyCode::Char('c') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
+                        self.exit()
+                    }
+                    KeyCode::Tab => self.state = self.state.cycle(),
 
-                if key_event.code == KeyCode::Tab {
-                    self.state = self.state.cycle();
+                    KeyCode::Up => self.files_widget_state.back(),
+                    KeyCode::Down => self.files_widget_state.next(),
+
+                    _ => {}
                 }
             }
             _ => {}
@@ -80,7 +93,7 @@ impl App {
         self.running = false;
     }
 
-    fn draw(&self, frame: &mut Frame) {
+    fn draw(&mut self, frame: &mut Frame) {
         let master = Layout::default()
             .direction(Direction::Vertical)
             .constraints([Constraint::Max(3), Constraint::Min(6)])
@@ -89,9 +102,18 @@ impl App {
         let statusbar = StatusBarWidget::new(&self.state);
         frame.render_widget(statusbar, master[0]);
 
-        if let AppState::InfoPage = &self.state {
-            let info = InfoWidget::new(&self.archive, &self.filename);
-            frame.render_widget(info, master[1]);
+        if let AppState::InfoPage = &self.state {}
+
+        match &self.state {
+            AppState::InfoPage => {
+                let info = InfoWidget::new(&self.archive, &self.filename);
+                frame.render_widget(info, master[1]);
+            }
+            AppState::FilesPage => frame.render_stateful_widget(
+                &self.files_widget,
+                master[1],
+                &mut self.files_widget_state,
+            ),
         }
     }
 }
