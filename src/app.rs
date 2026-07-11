@@ -72,19 +72,30 @@ impl App {
     fn handle_events(&mut self) -> anyhow::Result<()> {
         match event::read()? {
             Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
+                let mut cycled = false;
+
                 match key_event.code {
                     KeyCode::Char('c') if key_event.modifiers.contains(KeyModifiers::CONTROL) => {
                         self.exit()
                     }
-                    KeyCode::Tab => self.state = self.state.cycle(),
+                    KeyCode::Tab => {
+                        cycled = true;
+                        self.state = self.state.cycle();
+                    }
 
-                    KeyCode::Up => self.files_widget_state.back(),
-                    KeyCode::Down => self.files_widget_state.next(),
+                    KeyCode::Up if matches!(self.state(), AppState::FilesPage) => {
+                        self.files_widget_state.back()
+                    }
+                    KeyCode::Down if matches!(self.state(), AppState::FilesPage) => {
+                        self.files_widget_state.next()
+                    }
 
                     _ => {}
                 }
 
-                if let AppState::FilesPage = &self.state {
+                if let AppState::FilesPage = &self.state
+                    && !cycled
+                {
                     self.files_widget_state.input(key_event);
                 }
             }
