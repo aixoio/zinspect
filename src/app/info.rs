@@ -8,6 +8,7 @@ use ratatui::{
     text::{Line, Span, Text},
     widgets::{Block, Padding, Paragraph, Widget},
 };
+use thousands::Separable;
 use zip::ZipArchive;
 
 pub struct InfoWidget<'a> {
@@ -36,7 +37,10 @@ impl<'a> Widget for InfoWidget<'a> {
                 Span::raw(size.human_count_bytes().to_string()),
                 Span::raw("  "),
                 Span::styled("(Bytes: ", Style::default().gray().italic()),
-                Span::styled(size.to_string(), Style::default().gray().italic()),
+                Span::styled(
+                    size.separate_with_commas(),
+                    Style::default().gray().italic(),
+                ),
                 Span::styled(")", Style::default().gray().italic()),
             ]));
         }
