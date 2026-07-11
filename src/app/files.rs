@@ -6,8 +6,11 @@ use ratatui::{
     buffer::Buffer,
     layout::{Constraint, Direction, Layout, Rect},
     style::{Color, Style},
-    text::Span,
-    widgets::{Block, Padding, Paragraph, Row, StatefulWidget, Table, TableState, Widget},
+    text::{Line, Span, Text},
+    widgets::{
+        Block, BorderType, Clear, Padding, Paragraph, Row, StatefulWidget, Table, TableState,
+        Widget,
+    },
 };
 use ratatui_textarea::{Input, Key, TextArea};
 use zip::ZipArchive;
@@ -25,6 +28,7 @@ pub struct FilesWidget {
 pub struct FilesWidgetState {
     table: TableState,
     textarea: TextArea<'static>,
+    inspect: bool,
 }
 
 impl FilesWidgetState {
@@ -37,7 +41,11 @@ impl FilesWidgetState {
         textarea.set_placeholder_text("Search...");
         textarea.set_placeholder_style(Style::default().gray());
 
-        FilesWidgetState { table, textarea }
+        FilesWidgetState {
+            table,
+            textarea,
+            inspect: false,
+        }
     }
 
     pub fn next(&mut self) {
@@ -46,6 +54,10 @@ impl FilesWidgetState {
 
     pub fn back(&mut self) {
         self.table.select_previous();
+    }
+
+    pub fn inspect(&mut self) {
+        self.inspect = !self.inspect;
     }
 
     pub fn input(&mut self, input: impl Into<Input>) {
@@ -121,11 +133,17 @@ impl StatefulWidget for &FilesWidget {
             state.table.select_first();
         }
 
-        let rows = files.into_iter().map(|(file, _)| {
+        let rows = files.iter().map(|(file, _)| {
+            let percent = if file.size == 0 {
+                0.0
+            } else {
+                100.0 - (file.compressed_size as f64 / file.size as f64 * 100.0)
+            };
+
             Row::new([
                 file.filename.to_string(),
                 file.size.human_count_bytes().to_string(),
-                file.compressed_size.human_count_bytes().to_string(),
+                format!("{percent:.1}%"),
             ])
         });
 
@@ -164,5 +182,49 @@ impl StatefulWidget for &FilesWidget {
         .render(separator_area, buf);
 
         StatefulWidget::render(table, rows_area, buf, &mut state.table);
+
+        if let Some(item) = state.table.selected()
+            && state.inspect
+        {
+            let item = files[item].0;
+
+            let percent = if item.size == 0 {
+                0.0
+            } else {
+                100.0 - (item.compressed_size as f64 / item.size as f64 * 100.0)
+            };
+
+            let popup_block = Block::bordered()
+                .padding(Padding::uniform(1))
+                .border_type(BorderType::Rounded)
+                .border_style(Style::default().cyan());
+
+            let centered_area =
+                area.centered(Constraint::Percentage(70), Constraint::Percentage(30));
+
+            Widget::render(Clear, centered_area, buf);
+
+            let text = Paragraph::new(Text::from(vec![
+                Line::from(vec![
+                    Span::styled("Filename ", Style::default().bold().cyan()),
+                    Span::raw(format!("{}", item.filename)),
+                ]),
+                Line::from(vec![
+                    Span::styled("Size ", Style::default().bold().cyan()),
+                    Span::raw(format!("{}", item.size.human_count_bytes())),
+                ]),
+                Line::from(vec![
+                    Span::styled("Compressed Size ", Style::default().bold().cyan()),
+                    Span::raw(format!("{}", item.compressed_size.human_count_bytes())),
+                ]),
+                Line::from(vec![
+                    Span::styled("Percent ", Style::default().bold().cyan()),
+                    Span::raw(format!("{:.2}%", percent)),
+                ]),
+            ]))
+            .block(popup_block);
+
+            Widget::render(text, centered_area, buf);
+        }
     }
 }

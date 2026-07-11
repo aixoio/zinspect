@@ -89,6 +89,9 @@ impl App {
                     KeyCode::Down if matches!(self.state(), AppState::FilesPage) => {
                         self.files_widget_state.next()
                     }
+                    KeyCode::Enter if matches!(self.state(), AppState::FilesPage) => {
+                        self.files_widget_state.inspect();
+                    }
 
                     _ => {}
                 }
