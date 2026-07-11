@@ -19,6 +19,7 @@ pub struct App {
     state: AppState,
     archive: ZipArchive<File>,
     running: bool,
+    filename: Box<str>,
 }
 
 pub enum AppState {
@@ -39,11 +40,12 @@ impl App {
     getter!(state, AppState);
     getter!(archive, ZipArchive<File>);
 
-    pub fn new(archive: ZipArchive<File>) -> Self {
+    pub fn new(archive: ZipArchive<File>, filename: Box<str>) -> Self {
         Self {
             state: AppState::InfoPage,
             archive,
             running: true,
+            filename,
         }
     }
 

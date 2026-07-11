@@ -4,7 +4,7 @@ use crate::getter;
 
 #[derive(Parser)]
 pub struct Cli {
-    path: String,
+    pub path: String,
 }
 
 impl Cli {
