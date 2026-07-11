@@ -7,7 +7,7 @@ use ratatui::{
 };
 use zip::ZipArchive;
 
-use crate::getter;
+use crate::{app::status::StatusBarWidget, getter};
 
 mod status;
 
@@ -75,5 +75,9 @@ impl App {
             .direction(Direction::Vertical)
             .constraints([Constraint::Max(3), Constraint::Min(6)])
             .split(frame.area());
+
+        let statusbar = StatusBarWidget::new(&self.state);
+
+        frame.render_widget(statusbar, master[0]);
     }
 }
