@@ -1,5 +1,6 @@
 use std::fs::File;
 
+use crossterm::event::{self, KeyCode, KeyEventKind, KeyModifiers};
 use ratatui::{DefaultTerminal, Frame};
 use zip::ZipArchive;
 
@@ -53,7 +54,21 @@ impl App {
     }
 
     fn handle_events(&mut self) -> anyhow::Result<()> {
+        match event::read()? {
+            event::Event::Key(key_event) if key_event.kind == KeyEventKind::Press => {
+                if key_event.code == KeyCode::Char('c')
+                    && key_event.modifiers.contains(KeyModifiers::CONTROL)
+                {
+                    self.exit();
+                }
+            }
+            _ => {}
+        }
         Ok(())
+    }
+
+    fn exit(&mut self) {
+        self.running = false;
     }
 
     fn draw(&self, frame: &mut Frame) {}
