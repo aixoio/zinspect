@@ -120,8 +120,6 @@ impl App {
         let statusbar = StatusBarWidget::new(&self.state);
         frame.render_widget(statusbar, master[0]);
 
-        if let AppState::InfoPage = &self.state {}
-
         match &self.state {
             AppState::InfoPage => {
                 let info = InfoWidget::new(&self.archive, &self.filename);
