@@ -32,7 +32,8 @@ impl FilesWidgetState {
         table.select_first();
 
         let mut textarea = TextArea::default();
-        textarea.set_placeholder_text("regex...");
+        textarea.set_cursor_line_style(Style::default());
+        textarea.set_placeholder_text("Search...");
         textarea.set_placeholder_style(Style::default().gray());
 
         FilesWidgetState { table, textarea }
